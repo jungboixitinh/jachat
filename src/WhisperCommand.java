@@ -12,20 +12,19 @@ public class WhisperCommand implements Command {
             return;
         }
 
-        String targetUsername = parts[0];
+        String tempUsername = parts[0];
         String message = parts[1];
 
-        // Find target user
         ClientHandler targetClient = null;
         for (ClientHandler client : ClientHandler.clientHandlers) {
-            if (client.getClientUsername().equalsIgnoreCase(targetUsername)) {
+            if (client.getClientUsername().equalsIgnoreCase(tempUsername)) {
                 targetClient = client;
                 break;
             }
         }
 
         if (targetClient == null) {
-            clientHandler.sendPrivateMessage("User '" + targetUsername + "' not found.");
+            clientHandler.sendPrivateMessage("User '" + tempUsername + "' not found.");
             return;
         }
 
@@ -34,12 +33,10 @@ public class WhisperCommand implements Command {
             return;
         }
 
-        // Send whisper
         String whisperMessage = "[WHISPER from " + clientHandler.getClientUsername() + "]: " + message;
         targetClient.sendPrivateMessage(whisperMessage);
 
-        // Confirm to sender
-        clientHandler.sendPrivateMessage("[WHISPER to " + targetUsername + "]: " + message);
+        clientHandler.sendPrivateMessage("[WHISPER to " + tempUsername + "]: " + message);
     }
 
     @Override

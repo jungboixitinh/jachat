@@ -3,10 +3,10 @@ import java.util.Map;
 public class HelpCommand implements Command {
     @Override
     public void execute(ClientHandler clientHandler, String args) {
-        CommandHandler processor = clientHandler.getCommandHandler();
+        CommandHandler commandHandler = clientHandler.getCommandHandler();
         StringBuilder help = new StringBuilder("=== AVAILABLE COMMANDS ===\n");
 
-        for (Map.Entry<String, Command> entry : processor.getCommands().entrySet()) {
+        for (Map.Entry<String, Command> entry : commandHandler.getCommands().entrySet()) {
             help.append("/").append(entry.getKey()).append(" - ")
                     .append(entry.getValue().getDescription()).append("\n");
         }
@@ -16,6 +16,6 @@ public class HelpCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Shows this help message";
+        return "Shows help message";
     }
 }

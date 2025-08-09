@@ -21,7 +21,7 @@ public class CommandHandler {
 
     public boolean processCommand(String input) {
         if (!input.startsWith("/")) {
-            return false; // Not a command
+            return false;
         }
         String[] parts = input.substring(1).split(" ", 2);
         String commandName = parts[0].toLowerCase();
@@ -30,10 +30,10 @@ public class CommandHandler {
         Command command = commands.get(commandName);
         if (command != null) {
             command.execute(clientHandler, args);
-            return  true;
+            return true;
         } else {
             clientHandler.sendPrivateMessage("Unknown command: " + commandName + ". Type /help for a list of commands.");
-            return true; // Command not found
+            return true;
         }
     }
 

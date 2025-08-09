@@ -31,7 +31,7 @@ public class ClientHandler implements Runnable {
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            if (!setupUsername()) {
+            if (!validateUsername()) {
                 closeEverything(socket, bufferedReader, bufferedWriter);
                 return;
             }
@@ -49,6 +49,7 @@ public class ClientHandler implements Runnable {
 
             sendPrivateMessage("=== WELCOME TO THE CHAT ===");
             sendPrivateMessage("Your username is: " + clientUsername);
+
             if (isAdmin) {
                 sendPrivateMessage("You are the admin of this chat.");
             } else {
@@ -72,7 +73,7 @@ public class ClientHandler implements Runnable {
                     break;
                 }
                 if (commandHandler.processCommand(message)) {
-                    continue; //
+                    continue;
                 }
 
                 broadcastRegularMessage(message);
@@ -83,66 +84,35 @@ public class ClientHandler implements Runnable {
         }
     }
 
-//    public void broadcastMessage(String message, boolean isServerMessage) {
-//        if (isServerMessage) {
-//            for (ClientHandler clientHandler : clientHandlers) {
-//                try {
-//                    clientHandler.sendPrivateMessage(message);
-//                } catch (Exception e) {
-//                    closeEverything(socket, bufferedReader, bufferedWriter);
-//                }
-//            }
-//        } else {
-//            broadcastMessage(message, false);
-//        }
-//    }
+    public boolean validateUsername() throws IOException {
 
-    public boolean setupUsername() throws IOException {
-        int attempts = 0;
-        final int MAX_ATTEMPTS = 3;
-        while (attempts < MAX_ATTEMPTS) {
-            String proposedUsername = bufferedReader.readLine();
+        for (int i = 0; i < 3; i++) {
+            String tempUsername = bufferedReader.readLine();
 
-            if (proposedUsername == null || proposedUsername.trim().isEmpty()) {
-                return false;
-            }
-            proposedUsername = proposedUsername.trim();
+            tempUsername = tempUsername.trim();
 
-            String validationError = validateUsername(proposedUsername);
-            if (validationError != null) {
-                sendPrivateMessage("Invalid username: " + validationError);
-                attempts++;
-                if (attempts >= MAX_ATTEMPTS) {
-                    sendPrivateMessage("Too many invalid attempts. Please try again later.");
-                    return false;
-            }
+            if (tempUsername.isEmpty()) {
+                sendPrivateMessage("Username cannot be empty.");
                 continue;
-        }
-            if (isUsernameTaken(proposedUsername)) {
-                sendPrivateMessage("Username '" + proposedUsername + "' is already taken. Please choose another.");
-                attempts++;
-                if (attempts >= MAX_ATTEMPTS) {
-                    sendPrivateMessage("Too many invalid attempts. Please try again later.");
-                    return false;
-                }
-                continue;
-            } else {
-                this.clientUsername = proposedUsername;
-                sendPrivateMessage("Username set to: " + clientUsername);
-                return true;
             }
+
+            if (tempUsername.length() < 3 || tempUsername.length() > 15) {
+                sendPrivateMessage("Username must be between 3 and 15 characters.");
+                continue;
+            }
+
+            if (isUsernameTaken(tempUsername)) {
+                sendPrivateMessage("Username '" + tempUsername + "' is already taken. Please choose another.");
+                continue;
+            }
+
+            this.clientUsername = tempUsername;
+            sendPrivateMessage("Username set to: " + clientUsername);
+            return true;
         }
+
+        sendPrivateMessage("Too many invalid attempts. Please try again later.");
         return false;
-    }
-
-    private String validateUsername(String username) throws IOException {
-        if (username == null || username.trim().isEmpty()) {
-            return  "Username cannot be empty.";
-        }
-        if (username.length() < 3 || username.length() > 15) {
-            return "Username must be between 3 and 15 characters.";
-        }
-        return null;
     }
 
     private boolean isUsernameTaken(String username) {
@@ -186,12 +156,6 @@ public class ClientHandler implements Runnable {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
-    public void removeClientHandler() {
-        synchronized(clientHandlers) {
-            clientHandlers.remove(this);
-            broadcastServerMessage("SERVER: " + clientUsername + " has left the chat!");
-        }
-    }
 
     public boolean isAdmin() {
         return  isAdmin;
@@ -216,6 +180,11 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeClientHandler() {
+            clientHandlers.remove(this);
+            broadcastServerMessage("SERVER: " + clientUsername + " has left the chat!");
     }
 
 }

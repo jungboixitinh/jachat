@@ -10,7 +10,7 @@ public class Client {
     private String username;
     private String status;
 
-    public  Client(Socket socket, String clientUsername, String status) {
+    public Client(Socket socket, String clientUsername, String status) {
         try {
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -43,18 +43,15 @@ public class Client {
     }
 
     public void listenForMessages() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String clientMessage;
-                while (socket.isConnected()) {
-                    try {
-                        clientMessage = bufferedReader.readLine();
-                        System.out.println(clientMessage);
-                    } catch (IOException e) {
-                        closeEverything(socket, bufferedReader, bufferedWriter);
-                        break;
-                    }
+        new Thread(() -> {
+            String clientMessage;
+            while (socket.isConnected()) {
+                try {
+                    clientMessage = bufferedReader.readLine();
+                    System.out.println(clientMessage);
+                } catch (IOException e) {
+                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    break;
                 }
             }
         }).start();
@@ -82,10 +79,14 @@ public class Client {
         String username = scanner.nextLine();
         System.out.print("Enter your status: ");
         String status = scanner.nextLine();
-        Socket socket = new Socket("172.29.101.41", 8080);
-        Client client = new Client(socket, username, status);
-        client.listenForMessages();
-        client.sendMessage();
+        try {
+            Socket socket = new Socket("172.29.101.41", 8080);
+            Client client = new Client(socket, username, status);
+            client.listenForMessages();
+            client.sendMessage();
+        } catch (IOException e) {
+            System.out.println("*ERROR* Server not found");
+        }
     }
 
 }

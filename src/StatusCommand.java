@@ -10,7 +10,6 @@ public class StatusCommand implements Command {
         String oldStatus = clientHandler.getStatus();
         clientHandler.setStatus(args.trim());
 
-        // Broadcast status change
         String statusMessage = "SERVER: " + clientHandler.getClientUsername() +
                 " changed status from '" + oldStatus + "' to '" + clientHandler.getStatus() + "'";
         clientHandler.broadcastServerMessage(statusMessage);
