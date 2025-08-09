@@ -2,7 +2,15 @@
 
 A simple terminal-based chat application built in Java using TCP sockets. It follows a client-server architecture where a server handles multiple clients simultaneously.
 
-## 📌 Features
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+
+## Introduction
+
+## Features
 
 - Multi-client support using threads
 - Unique username assignment with validation
@@ -10,6 +18,8 @@ A simple terminal-based chat application built in Java using TCP sockets. It fol
 - Server-side and client-side message broadcasting
 - Private messages
 - Simple built-in command handler (`/help`, `/exit`,`/list`, etc.)
+
+## Installation
 
 
 
