@@ -1,10 +1,14 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientHandler implements Runnable {
 
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
+    public static Map<String, ChatRoom> chatRooms = new HashMap<>();
+    private ChatRoom currentRoom = null;
     Socket socket;
     BufferedReader bufferedReader;
     BufferedWriter bufferedWriter;
@@ -12,6 +16,19 @@ public class ClientHandler implements Runnable {
     private String status;
     private boolean isAdmin;
     private CommandHandler commandHandler;
+
+    public static ClientHandler getClientByUsername(String username) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            if (clientHandler.clientUsername != null && clientHandler.clientUsername.equalsIgnoreCase(username)) {
+                return clientHandler;
+            }
+        }
+        return null;
+    }
+
+    public ChatRoom getCurrentRoom() {
+        return currentRoom;
+    }
 
     public String getClientUsername() {
         return clientUsername;
@@ -75,7 +92,9 @@ public class ClientHandler implements Runnable {
                 if (commandHandler.processCommand(message)) {
                     continue;
                 }
-
+                if (message.isEmpty()) {
+                    continue;
+                }
                 broadcastRegularMessage(message);
             } catch (IOException e) {
                 closeEverything(socket, bufferedReader, bufferedWriter);
@@ -125,14 +144,28 @@ public class ClientHandler implements Runnable {
     }
 
     public void broadcastRegularMessage(String message) {
-        for (ClientHandler clientHandler : clientHandlers) {
-            try {
-                if (!clientHandler.clientUsername.equals(clientUsername)) {
-                    String formattedMessage = clientUsername + " (" + status + "): " + message;
-                    clientHandler.sendPrivateMessage(formattedMessage);
+        if (currentRoom != null) {
+            for (ClientHandler clientHandler : currentRoom.getMembers()) {
+                try {
+                    if (!clientHandler.clientUsername.equals(clientUsername)) {
+                        String formattedMessage = "[" + currentRoom.getName() + "] " + clientUsername + " (" + status + "): " + message;
+                        clientHandler.sendPrivateMessage(formattedMessage);
+                    }
+
+                } catch (Exception e) {
+                    closeEverything(socket, bufferedReader, bufferedWriter);
                 }
-            } catch (Exception e) {
-                closeEverything(socket, bufferedReader, bufferedWriter);
+            }
+        } else {
+            for (ClientHandler clientHandler : clientHandlers) {
+                try {
+                    if (!clientHandler.clientUsername.equals(clientUsername)) {
+                        String formattedMessage = clientUsername + " (" + status + "): " + message;
+                        clientHandler.sendPrivateMessage(formattedMessage);
+                    }
+                } catch (Exception e) {
+                    closeEverything(socket, bufferedReader, bufferedWriter);
+                }
             }
         }
     }
@@ -187,4 +220,15 @@ public class ClientHandler implements Runnable {
             broadcastServerMessage("SERVER: " + clientUsername + " has left the chat!");
     }
 
+    public void setCurrentRoom(ChatRoom room) {
+        if (room != null) {
+            this.currentRoom = room;
+            room.addMember(this);
+        } else {
+            if (this.currentRoom != null) {
+                this.currentRoom.removeMember(this);
+            }
+            this.currentRoom = null;
+        }
+    }
 }

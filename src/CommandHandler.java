@@ -15,8 +15,13 @@ public class CommandHandler {
         commands.put("help", new HelpCommand());
         commands.put("whisper", new WhisperCommand());
         commands.put("kick", new KickCommand());
-        commands.put("list", new ListUsersCommand());
+        commands.put("listuser", new ListUsersCommand());
         commands.put("status", new StatusCommand());
+        commands.put("create", new CreateRoomCommand());
+        commands.put("join", new JoinRoomCommand());
+        commands.put("invite", new InviteCommand());
+        commands.put("listroom", new ListRoomsCommand());
+        commands.put("leave", new LeaveRoomCommand());
     }
 
     public boolean processCommand(String input) {

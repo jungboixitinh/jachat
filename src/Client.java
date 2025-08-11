@@ -80,7 +80,7 @@ public class Client {
         System.out.print("Enter your status: ");
         String status = scanner.nextLine();
         try {
-            Socket socket = new Socket("172.29.101.41", 8080);
+            Socket socket = new Socket("172.29.101.46", 8080);
             Client client = new Client(socket, username, status);
             client.listenForMessages();
             client.sendMessage();
