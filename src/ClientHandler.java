@@ -145,15 +145,16 @@ public class ClientHandler implements Runnable {
 
     public void broadcastRegularMessage(String message) {
         if (currentRoom != null) {
+            String formattedMessage = "[" + currentRoom.getName() + "] " + clientUsername + " (" + status + "): " + message;
+            currentRoom.addMessageToHistory(formattedMessage);
             for (ClientHandler clientHandler : currentRoom.getMembers()) {
                 try {
                     if (!clientHandler.clientUsername.equals(clientUsername)) {
-                        String formattedMessage = "[" + currentRoom.getName() + "] " + clientUsername + " (" + status + "): " + message;
                         clientHandler.sendPrivateMessage(formattedMessage);
                     }
 
                 } catch (Exception e) {
-                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    clientHandler.closeEverything(socket, bufferedReader, bufferedWriter);
                 }
             }
         } else {
@@ -164,7 +165,7 @@ public class ClientHandler implements Runnable {
                         clientHandler.sendPrivateMessage(formattedMessage);
                     }
                 } catch (Exception e) {
-                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    clientHandler.closeEverything(socket, bufferedReader, bufferedWriter);
                 }
             }
         }
@@ -175,7 +176,7 @@ public class ClientHandler implements Runnable {
             try {
                 clientHandler.sendPrivateMessage(message);
             } catch (Exception e) {
-                closeEverything(socket, bufferedReader, bufferedWriter);
+                clientHandler.closeEverything(socket, bufferedReader, bufferedWriter);
             }
         }
     }

@@ -9,12 +9,15 @@ public class LeaveRoomCommand implements Command {
         String roomName = client.getCurrentRoom().getName();
         ChatRoom room = client.getCurrentRoom();
         room.removeMember(client);
+
+        room.saveHistory();
+
         client.setCurrentRoom(null);
 
         // Notify other members in the room
         for (ClientHandler member : room.getMembers()) {
             if (!member.equals(client)) {
-                member.sendPrivateMessage(client.getClientUsername() + " has left the room.");
+                member.sendPrivateMessage("*SERVER* " + client.getClientUsername() + " has left the room.");
             }
         }
 
