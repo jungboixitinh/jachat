@@ -23,26 +23,30 @@ public class Server {
 
             }
         } catch (IOException e) {
-//            closeServerSocket();
+            closeServerSocket();
         }
     }
 
-//    public void closeServerSocket() throws IOException {
-//        try {
-//            if (serverSocket != null && !serverSocket.isClosed()) {
-//                serverSocket.close();
-//                System.out.println("Server stopped.");
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public void closeServerSocket() throws IOException {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+                System.out.println("Server stopped.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(8080);
-        Server server = new Server(serverSocket);
-        System.out.println("Server started on port 8080");
-        server.startServer();
+        try {
+            ServerSocket serverSocket = new ServerSocket(8080);
+            Server server = new Server(serverSocket);
+            System.out.println("Server started on port 8080");
+            server.startServer();
+        } catch (IOException e) {
+            System.out.println("Unable to start server: " + e.getMessage());
+        }
     }
 
 }

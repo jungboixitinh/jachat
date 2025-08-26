@@ -14,7 +14,6 @@ public class LeaveRoomCommand implements Command {
 
         client.setCurrentRoom(null);
 
-        // Notify other members in the room
         for (ClientHandler member : room.getMembers()) {
             if (!member.equals(client)) {
                 member.sendPrivateMessage("*SERVER* " + client.getClientUsername() + " has left the room.");
